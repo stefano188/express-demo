@@ -1,0 +1,22 @@
+
+# Install node monitor. So don't have to stop and restart the server
+npm i -g nodemon
+nodemon index.js
+
+
+# Object schema validation
+https://www.npmjs.com/package/@hapi/joi
+
+npm i @hapi/joi
+
+
+# object destructure
+    const { error } = validateCourse(req.body);
+    if (error) { ....
+The object returned by validateCourse has two properties: error, value.
+Because we need to check the error property instead of
+    const result = validateCourse(req.body);
+    if (result.error) { ....
+we can use javascript 'Object Destructure'
+    const { error } = validateCourse(req.body);
+
