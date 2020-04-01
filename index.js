@@ -1,10 +1,36 @@
 
-const Joi = require('@hapi/joi');
 const express = require('express');
+const config = require('config');
+const Joi = require('@hapi/joi');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const logger = require('./logger');
+const authenticate = require('./authentication');
 
 const app = express();
 
+console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`env: ${app.get('env')}`);
+
+// Middleware functions
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.use(helmet());
+
+printConfigValue('name');
+printConfigValue('mail.host');
+printConfigValue('mail.password');
+//console.log(`App Name: ${config.get('name')}`);
+//console.log(`Mail Server: ${config.get('mail.host')}`);
+
+if ('development' === app.get('env')) {
+    app.use(morgan('tiny'));
+}
+
+// Custom Middleware functions
+app.use(logger);
+app.use(authenticate);
 
 const courses = [
     { id: 1, name: 'course1' },
@@ -21,7 +47,6 @@ app.get('/api/courses', (req, res) => {
 });
 
 app.get('/api/courses/:id', (req, res) => {
-    //res.send(req.params.id);
     const course = findCourseById(req.params.id);
     if (!course) res.status(404).send('Course not found');
     res.send(course);
@@ -82,6 +107,12 @@ function validateCourse(body) {
         name: Joi.string().required().min(3)
     }) 
     return schema.validate(body);
+}
+
+function printConfigValue(key) {
+    if (config.has(key)) {
+        console.log(`Config ${key}: ${config.get(key)}`);
+    }
 }
 
 const port = process.env.PORT || 3000;

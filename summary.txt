@@ -1,15 +1,61 @@
 
+# Install express dependency
+npm i express
+
 # Install node monitor. So don't have to stop and restart the server
 npm i -g nodemon
 nodemon index.js
 
+***************************************************************
+# Middleware functions (by express)
 
+# It parses the body of the request, and if there is a json object, 
+#   it will populate the 'request.body' property
+app.use(express.json())
+
+# It enables the server to read requests with url form-encoded payload (key1=value1&key2=value2,...)
+app.use(express.urlencoded({ extended: true }));
+
+# It enables to read static files in 'public' folder
+app.use(express.static('public'));
+
+# Middleware function is a function that accept 3 parameters (req, res, next)
+# It could terminate returning a response (res)
+# Or it could pass the executing to the next middleware function
+# logger.js, call next() passing the execution
+function log(req, res, next) {
+    console.log('Logging...');
+    next();
+}
+
+# Route handlers are middleware functions. They return a response
+(req, res) => {
+    res.send('Hello World !!!');
+}
+
+***************************************************************
+# Route Parameters
+app.get('/api/courses/:id', (req, res) => {
+    ...
+    # params req.params
+    # id param: req.params.id 
+    # id param: req.params['id']
+}
+
+***************************************************************
 # Object schema validation
 https://www.npmjs.com/package/@hapi/joi
 
 npm i @hapi/joi
 
+# instane of new Joi Object
+const schema = Joi.object({
+    name: Joi.string().required().min(3)
+}) 
+# validate the input ('body')
+return schema.validate(body);
 
+***************************************************************
 # object destructure
     const { error } = validateCourse(req.body);
     if (error) { ....
@@ -20,3 +66,40 @@ Because we need to check the error property instead of
 we can use javascript 'Object Destructure'
     const { error } = validateCourse(req.body);
 
+***************************************************************
+Thirdy Part Middleware
+
+# secure http
+npm i helmet
+
+# log http requests
+npm i morgan
+
+app.use(morgan('tiny'));
+    GET /api/courses/ 200 79 - 4.415 ms
+
+
+***************************************************************
+Configuration (development, testing, production, ...)
+
+npm i config
+
+# Read the key value in the config file under config/default.json
+config.get(key)
+
+# Depending on the environment variable (NODE_ENV) it starts with the specific json config file
+# if not set, 'development' is the default
+
+NODE_ENV=production
+# start node application with enviromnent set to production. 
+# Load config/production.json configuration file
+
+
+config/custom-environment-variables.json
+# maps key with enviromnent variables
+# mail.password: APP_NODE_PSW (enviromnent variable)
+{
+    "mail": {
+        "password": "APP_NODE_PSW"
+    }
+}
