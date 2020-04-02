@@ -1,6 +1,8 @@
 
 const express = require('express');
 const config = require('config');
+const debugApp = require('debug')('app:startup');
+const debugDb = require('debug')('app:db');
 const Joi = require('@hapi/joi');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -9,8 +11,10 @@ const authenticate = require('./authentication');
 
 const app = express();
 
-console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
-console.log(`env: ${app.get('env')}`);
+debugApp(`NODE_ENV: ${process.env.NODE_ENV}`);
+debugApp(`env: ${app.get('env')}`);
+
+debugDb('connecting to DB');
 
 // Middleware functions
 app.use(express.json());

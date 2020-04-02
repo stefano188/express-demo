@@ -103,3 +103,26 @@ config/custom-environment-variables.json
         "password": "APP_NODE_PSW"
     }
 }
+
+***************************************************************
+Debug
+npm i debug
+
+# configure debugging on some namespaces
+const debugApp = require('debug')('app:startup');
+const debugDb = require('debug')('app:db');
+
+# enable log on the specified namespace (app:startup, app:db)
+export DEBUG=app:startup,app:db
+nodemon index.js
+....
+  app:startup NODE_ENV: stage +0ms
+  app:startup env: stage +2ms
+  app:db connecting to DB +0ms
+...
+
+# Enables ALL the logs (not suggested)
+export DEBUG=app:*
+
+# DEBUG enviromnent variables can be set inline before starting nodemon
+DEBUG=app:startup;nodemon index.js
