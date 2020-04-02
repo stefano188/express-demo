@@ -3,17 +3,18 @@ const express = require('express');
 const config = require('config');
 const debugApp = require('debug')('app:startup');
 const debugDb = require('debug')('app:db');
-const Joi = require('@hapi/joi');
+const courses = require('./routes/courses');
+const roots = require('./routes/root');
+
 const helmet = require('helmet');
 const morgan = require('morgan');
-const logger = require('./logger');
-const authenticate = require('./authentication');
+const logger = require('./middleware/logger');
+const authenticate = require('./middleware/authentication');
 
 const app = express();
 
 debugApp(`NODE_ENV: ${process.env.NODE_ENV}`);
 debugApp(`env: ${app.get('env')}`);
-
 debugDb('connecting to DB');
 
 // pug
@@ -25,104 +26,23 @@ app.set('views', ['./views_pug/', './views']);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.use(helmet());
-
-printConfigValue('name');
-printConfigValue('mail.host');
-printConfigValue('mail.password');
-//console.log(`App Name: ${config.get('name')}`);
-//console.log(`Mail Server: ${config.get('mail.host')}`);
-
+app.use(morgan('tiny'));
 if ('development' === app.get('env')) {
-    app.use(morgan('tiny'));
+    app.use(helmet());
 }
-
 // Custom Middleware functions
 app.use(logger);
 app.use(authenticate);
 
-const courses = [
-    { id: 1, name: 'course1' },
-    { id: 2, name: 'course2' },
-    { id: 3, name: 'course3' },
-]
+app.use('/api/courses', courses);
+app.use(roots);
 
-app.get('/', (req, res) => {
-    //res.send('Hello World !!!');
-    res.render('index', { title: 'Title App', message: 'Hi Pug !'});
-});
 
-app.get('/pug', (req, res) => {
-    //res.send('Hello World !!!');
-    res.render('hello', { title: 'Title App', message: 'Hi Pug @'});
-});
 
-app.get('/api/courses', (req, res) => {
-    res.send(courses);
-});
 
-app.get('/api/courses/:id', (req, res) => {
-    const course = findCourseById(req.params.id);
-    if (!course) res.status(404).send('Course not found');
-    res.send(course);
-});
-
-app.get('/api/courses/:year/:month', (req, res) => {
-    console.log(req.params);
-    console.log(req.query);
-    res.send(req.params);
-});
-
-app.post('/api/courses/', (req, res) => {
-    const { error } = validateCourse(req.body);
-    if (error) return res.status(400).send('Request not valid');
-
-    const course = {
-        id: courses.length + 1,
-        name: req.body.name
-    };
-    courses.push(course);
-    res.send(course);
-});
-
-app.put('/api/courses/:id', (req, res) => {
-    // Look up the Course
-    // If not exists, return 404 (Not Found)
-    const course = findCourseById(req.params.id);
-    if (!course) return res.status(404).send('Course not found');
-
-    // Validate request body
-    // If not valid, return 400 (Bad Request)
-    const { error } = validateCourse(req.body);
-    if (error) return res.status(400).send('Request not valid');
-
-    // Update Course
-    // Return the updated Course
-    course['name'] = req.body.name;
-    res.send(course);
-});
-
-app.delete('/api/courses/:id', (req, res) => {
-    const course = findCourseById(req.params.id);
-    if (!course) return res.status(404).send('Course not found');
-
-    // Delete
-    const index = courses.indexOf(course);
-    courses.splice(index, 1);
-
-    res.send(course);
-})
-
-function findCourseById(id) {
-    return courses.find(c => c.id === parseInt(id));
-}
-
-function validateCourse(body) {
-    const schema = Joi.object({
-        name: Joi.string().required().min(3)
-    }) 
-    return schema.validate(body);
-}
+printConfigValue('name');
+printConfigValue('mail.host');
+printConfigValue('mail.password');
 
 function printConfigValue(key) {
     if (config.has(key)) {
