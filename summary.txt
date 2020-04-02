@@ -126,3 +126,25 @@ export DEBUG=app:*
 
 # DEBUG enviromnent variables can be set inline before starting nodemon
 DEBUG=app:startup;nodemon index.js
+
+
+***************************************************************
+Pug - render a template html
+
+# set the engine pug
+app.set('view engine', 'pug');
+# unnecessary because it looks up for the ./views folder by default
+app.set('views', './views'); // default
+# can give multiple views folders as an array of strings
+app.set('views', ['./views_pug/', './views']);
+
+# it should be called 'render' methdod passing 
+#   the name of the page .pug 
+#   an optional object with the parameter values used in the pug page
+app.get('/', (req, res) => {
+    res.render('index', { title: 'Title App', message: 'Hi Pug !'});
+});
+app.get('/pug', (req, res) => {
+    res.render('hello', { title: 'Title App', message: 'Hi Pug @'});
+});
+

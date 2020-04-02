@@ -16,6 +16,11 @@ debugApp(`env: ${app.get('env')}`);
 
 debugDb('connecting to DB');
 
+// pug
+app.set('view engine', 'pug');
+//app.set('views', './views'); // default
+app.set('views', ['./views_pug/', './views']);
+
 // Middleware functions
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -43,7 +48,13 @@ const courses = [
 ]
 
 app.get('/', (req, res) => {
-    res.send('Hello World !!!');
+    //res.send('Hello World !!!');
+    res.render('index', { title: 'Title App', message: 'Hi Pug !'});
+});
+
+app.get('/pug', (req, res) => {
+    //res.send('Hello World !!!');
+    res.render('hello', { title: 'Title App', message: 'Hi Pug @'});
 });
 
 app.get('/api/courses', (req, res) => {
