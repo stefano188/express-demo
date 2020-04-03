@@ -15,8 +15,11 @@
     "debug": "^4.1.1",
     "express": "^4.17.1",
     "helmet": "^3.22.0",
-    "kind-of": "^6.0.3",
     "morgan": "^1.10.0",
     "pug": "^2.0.4"
+  },
+  "devDependencies": {
+    "acorn": "^7.1.1",
+    "kind-of": "^6.0.3"
   }
 }
